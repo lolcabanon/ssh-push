@@ -19,6 +19,9 @@ inputs:
   PRIVATE_KEY:
     description: 'SSH Private Key'
     required: true
+  PASSPHRASE:
+    description: 'SSH Private Key Passphrase'
+    required: false
   SOURCE:
     description: 'Folder to be transferred'
     required: false

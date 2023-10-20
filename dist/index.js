@@ -71709,120 +71709,134 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 
-const { NodeSSH } = __nccwpck_require__(2812)
+const { NodeSSH } = __nccwpck_require__(2812);
 const JSZip = __nccwpck_require__(5017);
 const jetpack = __nccwpck_require__(4074);
-const fs= __nccwpck_require__(7147);
+const fs = __nccwpck_require__(7147);
 const path = __nccwpck_require__(1017);
-const zip = new JSZip()
-const ssh = new NodeSSH()
+const zip = new JSZip();
+const ssh = new NodeSSH();
 const core = __nccwpck_require__(9483);
 
 const {
-    WORKSPACE,
-    HOST,
-    PORT,
-    USERNAME,
-    PRIVATE_KEY,
-    PASSPHRASE,
-    EXCLUDE,
-    SCRIPTS,
-    SOURCE,
-    ZIPNAME,
-    OUTDIR
-}= __nccwpck_require__(2305);
+  WORKSPACE,
+  HOST,
+  PORT,
+  USERNAME,
+  PRIVATE_KEY,
+  PASSPHRASE,
+  EXCLUDE,
+  SCRIPTS,
+  SOURCE,
+  ZIPNAME,
+  OUTDIR
+} = __nccwpck_require__(2305);
 
-const { addSsh } = __nccwpck_require__(5834)
+const { addSsh } = __nccwpck_require__(5834);
 
 const source = `${WORKSPACE}/${SOURCE || ''}`;
 
-const createZip= (zipName, exclude)=>{
-    return new Promise((resolve,reject)=>{
-        jetpack.cwd(source).find({
-            matching:exclude!=null ? exclude.split('\n').map(x=>"!"+x.trim()) : ["*"]
-        }).map(x=>{
-          zip.file(x,fs.readFileSync(path.join(source,x)))
-        })
+const createZip = (zipName, exclude) => {
+  return new Promise((resolve, reject) => {
+    jetpack
+      .cwd(source)
+      .find({
+        matching:
+          exclude != null
+            ? exclude.split('\n').map((x) => '!' + x.trim())
+            : ['*']
+      })
+      .map((x) => {
+        zip.file(x, fs.readFileSync(path.join(source, x)));
+      });
 
-        zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
-            .pipe(fs.createWriteStream(zipName))
-            .on('finish', ()=>resolve());
-    })
-}
+    zip
+      .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+      .pipe(fs.createWriteStream(zipName))
+      .on('finish', () => resolve());
+  });
+};
 
-const putZip= (zipRootDir, zipName)=>{
-    return new Promise((resolve,reject)=>{
-        ssh.putFile(zipName, path.join(zipRootDir,zipName)).then(()=>resolve(), error=> reject(error))
-    });
-}
-
-const execAsync= (command, params=[])=>{
-    return new Promise((resolve,reject)=>{
-        ssh.execCommand(command,params).then(x=>{
-            if(x.stderr){
-                reject(x.stderr)
-            }else
-                resolve(x.stdout);
-        });
-    });
-}
-
-const executeScripts= async (scripts)=>{
-    const scs= scripts.split('\n').map(x=>x.trim());
-
-    if((scs.length==0) || (scs.length==1 && scs[0]=="")) return Promise.resolve();
-
-    const tasks= scs.map(x=>
-        execAsync(x)
-            .then(res=>{
-                console.log(`=================================`)
-                console.log(`Command "${x}" Executed Succesfully`);
-                console.log(`Response:\n${res}`)
-                console.log(`=================================`)
-            })
-            .catch(err=>{
-                console.log(`=================================`)
-                console.log(`Command "${x}" cant Executed Succesfully`);
-                console.log(`Error:\n${err}`)
-                console.log(`=================================`)
-            })
+const putZip = (zipRootDir, zipName) => {
+  return new Promise((resolve, reject) => {
+    ssh.putFile(zipName, path.join(zipRootDir, zipName)).then(
+      () => resolve(),
+      (error) => reject(error)
     );
+  });
+};
 
-    await Promise.all(tasks);
-}
-
-const main = async()=>{
-    addSsh("deploy_key",PRIVATE_KEY);
-    console.log("✔️ Private key added on machine");
-
-    await ssh.connect({
-        host: HOST,
-        username: USERNAME,
-        privateKey: PRIVATE_KEY,
-        passphrase: PASSHRASE,
-        port: PORT
+const execAsync = (command, params = []) => {
+  return new Promise((resolve, reject) => {
+    ssh.execCommand(command, params).then((x) => {
+      if (x.stderr) {
+        reject(x.stderr);
+      } else resolve(x.stdout);
     });
-    await createZip(ZIPNAME, EXCLUDE);
-    console.log(`✔️ Created zip as "${ZIPNAME}"`);
+  });
+};
 
-    const baseDir= OUTDIR||`/home/${USERNAME}`;
+const executeScripts = async (scripts) => {
+  const scs = scripts.split('\n').map((x) => x.trim());
 
-    await putZip(baseDir,ZIPNAME);
+  if (scs.length == 0 || (scs.length == 1 && scs[0] == ''))
+    return Promise.resolve();
 
-    console.log(`✔️ Transfered "${ZIPNAME}" to "${baseDir}/${ZIPNAME}" via "${HOST+'@'+USERNAME}"`);
+  const tasks = scs.map((x) =>
+    execAsync(x)
+      .then((res) => {
+        console.log(`=================================`);
+        console.log(`Command "${x}" Executed Succesfully`);
+        console.log(`Response:\n${res}`);
+        console.log(`=================================`);
+      })
+      .catch((err) => {
+        console.log(`=================================`);
+        console.log(`Command "${x}" cant Executed Succesfully`);
+        console.log(`Error:\n${err}`);
+        console.log(`=================================`);
+      })
+  );
 
-    if(SCRIPTS){
-      await executeScripts(SCRIPTS);
-    }
+  await Promise.all(tasks);
+};
 
-    console.log("✔️ Transfer Done");
-    ssh.dispose();
-}
+const main = async () => {
+  addSsh('deploy_key', PRIVATE_KEY);
+  console.log('✔️ Private key added on machine');
+
+  await ssh.connect({
+    host: HOST,
+    username: USERNAME,
+    privateKey: PRIVATE_KEY,
+    passphrase: PASSPHRASE,
+    port: PORT
+  });
+  await createZip(ZIPNAME, EXCLUDE);
+  console.log(`✔️ Created zip as "${ZIPNAME}"`);
+
+  const baseDir = OUTDIR || `/home/${USERNAME}`;
+
+  await putZip(baseDir, ZIPNAME);
+
+  console.log(
+    `✔️ Transfered "${ZIPNAME}" to "${baseDir}/${ZIPNAME}" via "${
+      HOST + '@' + USERNAME
+    }"`
+  );
+
+  if (SCRIPTS) {
+    await executeScripts(SCRIPTS);
+  }
+
+  console.log('✔️ Transfer Done');
+  ssh.dispose();
+};
 
 try {
-    main();
+  main();
 } catch (error) {
-    core.setFailed(error.message);
+  core.setFailed(error.message);
 }
 
 })();
