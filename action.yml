@@ -16,6 +16,9 @@ inputs:
   USERNAME:
     description: 'Username of SSH user'
     required: true
+  PASSWORD:
+    description: 'Password of SSH user'
+    required: false
   PRIVATE_KEY:
     description: 'SSH Private Key'
     required: true

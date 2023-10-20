@@ -71807,15 +71807,6 @@ const main = async () => {
   addSsh('deploy_key', PRIVATE_KEY);
   console.log('✔️ Private key added on machine');
 
-  console.dir({
-    host: HOST,
-    username: USERNAME,
-    password: PASSWORD,
-    privateKey: PRIVATE_KEY,
-    passphrase: PASSPHRASE,
-    port: PORT
-  });
-
   await ssh.connect({
     host: HOST,
     username: USERNAME,
