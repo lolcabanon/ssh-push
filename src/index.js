@@ -15,6 +15,7 @@ const {
     PORT,
     USERNAME,
     PRIVATE_KEY,
+    PASSPHRASE,
     EXCLUDE,
     SCRIPTS,
     SOURCE,
@@ -89,6 +90,7 @@ const main = async()=>{
         host: HOST,
         username: USERNAME,
         privateKey: PRIVATE_KEY,
+        passphrase: PASSHRASE,
         port: PORT
     });
     await createZip(ZIPNAME, EXCLUDE);
