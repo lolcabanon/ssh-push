@@ -5,6 +5,7 @@ const inputsNames= [
     "PORT",
     "USERNAME",
     "PRIVATE_KEY",
+    "PASSPHRASE",
     "SOURCE",
     "EXCLUDE",
     "ZIPNAME",
