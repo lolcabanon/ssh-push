@@ -14,6 +14,7 @@ const {
   HOST,
   PORT,
   USERNAME,
+  PASSWORD,
   PRIVATE_KEY,
   PASSPHRASE,
   EXCLUDE,
@@ -99,10 +100,12 @@ const main = async () => {
   await ssh.connect({
     host: HOST,
     username: USERNAME,
+    password: PASSWORD,
     privateKey: PRIVATE_KEY,
     passphrase: PASSPHRASE,
     port: PORT
   });
+
   await createZip(ZIPNAME, EXCLUDE);
   console.log(`✔️ Created zip as "${ZIPNAME}"`);
 

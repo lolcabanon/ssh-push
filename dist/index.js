@@ -70346,28 +70346,29 @@ exports["default"] = _default;
 
 const core = __nccwpck_require__(9483);
 
-const inputsNames= [
-    "HOST",
-    "PORT",
-    "USERNAME",
-    "PRIVATE_KEY",
-    "PASSPHRASE",
-    "SOURCE",
-    "EXCLUDE",
-    "ZIPNAME",
-    "OUTDIR",
-    "SCRIPTS",
+const inputsNames = [
+  'HOST',
+  'PORT',
+  'USERNAME',
+  'PASSWORD',
+  'PRIVATE_KEY',
+  'PASSPHRASE',
+  'SOURCE',
+  'EXCLUDE',
+  'ZIPNAME',
+  'OUTDIR',
+  'SCRIPTS'
 ];
 
-const inputs= {
-    WORKSPACE: process.env.GITHUB_WORKSPACE
-}
+const inputs = {
+  WORKSPACE: process.env.GITHUB_WORKSPACE
+};
 
-inputsNames.map(x=>{
-    inputs[x]= core.getInput(x) || null;
-})
+inputsNames.map((x) => {
+  inputs[x] = core.getInput(x) || null;
+});
 
-module.exports=inputs;
+module.exports = inputs;
 
 
 /***/ }),
@@ -71723,6 +71724,7 @@ const {
   HOST,
   PORT,
   USERNAME,
+  PASSWORD,
   PRIVATE_KEY,
   PASSPHRASE,
   EXCLUDE,
@@ -71805,13 +71807,24 @@ const main = async () => {
   addSsh('deploy_key', PRIVATE_KEY);
   console.log('✔️ Private key added on machine');
 
-  await ssh.connect({
+  console.dir({
     host: HOST,
     username: USERNAME,
+    password: PASSWORD,
     privateKey: PRIVATE_KEY,
     passphrase: PASSPHRASE,
     port: PORT
   });
+
+  await ssh.connect({
+    host: HOST,
+    username: USERNAME,
+    password: PASSWORD,
+    privateKey: PRIVATE_KEY,
+    passphrase: PASSPHRASE,
+    port: PORT
+  });
+
   await createZip(ZIPNAME, EXCLUDE);
   console.log(`✔️ Created zip as "${ZIPNAME}"`);
 
